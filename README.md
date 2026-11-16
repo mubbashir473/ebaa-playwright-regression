@@ -27,7 +27,7 @@ For staging, configure the correct staging domain and forms (plus CAPTCHA test c
 ## What this suite measures
 - Bounded internal HTML page discovery from WP sitemaps + hyperlink crawling.
 - Page status, title, visible images, uncaught JS exceptions.
-- Internal URL GET checks (including same-origin PDFs), up to MAX_LINKS.
+- Internal URL GET checks, up to MAX_LINKS; the entire `/documents/`, `/videos/`, and `/video/` section and downloadable document/media assets are excluded.
 - Critical routes and selected form inventory.
 - Mobile and desktop viewport smoke tests with screenshots.
 - Playwright HTML report, JSON report and retained failure traces/screenshots.
@@ -42,7 +42,7 @@ For staging, configure the correct staging domain and forms (plus CAPTCHA test c
 - Non-HTML links and third-party links are excluded from crawler expansion. Only same-origin links are GET-checked.
 - Form inventory is not an end-to-end submission assertion; cross-check mails/CRM/db separately.
 - For low server load, run with 1 worker and limit breadth with MAX_PAGES/MAX_LINKS.
-- Search, map, calculator, document correctness and backend assertions are future site-specific tests.
+- Search, map, calculator and backend assertions are future site-specific tests. Document testing is intentionally excluded.
 
 ## Recommended post-update workflow
 1. Snapshot staging DB/files and note plugin, WordPress, Sage, Bedrock versions.
@@ -51,3 +51,10 @@ For staging, configure the correct staging domain and forms (plus CAPTCHA test c
 4. Run approved staging submission and core calculation tests after configuring them.
 5. Compare results to the last known-good baseline; review visual changes.
 6. Deploy to production only after approval, then run safe production smoke tests.
+
+## Document exclusions
+All URLs beginning with `/documents/`, `/videos/`, and `/video/` (including document-related request forms) are excluded from sitemap discovery, page crawling, link validation and direct test routes. Downloadable assets (PDF, Office files, ZIP, images, videos) are not followed as pages or validated as links. Other areas of the site remain in scope.
+
+## Excluded sections
+
+The crawler ignores `/documents/`, `/videos/`, `/video/` and their child pages. Links to these URLs are not checked. Download file extensions are also excluded. Other site areas remain in scope.

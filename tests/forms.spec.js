@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const routes = ['/webinar/', '/documents/certification-request/', '/documents/literature-request/', '/traceability-request/'];
+const routes = ['/webinar/', '/traceability-request/', '/contact/'];
 for (const route of routes) {
   test(`Form inventory: ${route}`, async ({ page }, testInfo) => {
     const response = await page.goto(route, { waitUntil: 'domcontentloaded' });

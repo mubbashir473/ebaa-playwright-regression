@@ -1,8 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const paths = [
-  '/', '/products/', '/documents/', '/tech-support/', '/contact/',
-  '/webinar/', '/documents/certification-request/',
-  '/documents/literature-request/', '/traceability-request/', '/calculator/'
+  '/', '/products/', '/tech-support/', '/contact/',
+  '/webinar/', '/traceability-request/', '/calculator/'
 ];
 for (const route of paths) {
   test(`Critical page opens: ${route}`, async ({ page }) => {

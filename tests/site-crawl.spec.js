@@ -11,6 +11,11 @@ const MAX_LINKS = Number(process.env.MAX_LINKS || 2000);
 const outDir = path.join(process.cwd(), 'test-results');
 const pageExt = /\.(pdf|zip|csv|xlsx?|docx?|pptx?|png|jpe?g|gif|webp|svg|mp4|mov|webm|woff2?|ttf|eot)(?:$|\?)/i;
 const blockedPaths = /\/(wp-admin|wp-login\.php|logout|cart|checkout)(?:\/|\?|$)/i;
+// Exclude Documents and Videos sections (including child routes), plus download files.
+const isExcluded = url => {
+  const pathname = new URL(url, ROOT).pathname;
+  return /^\/(?:documents|videos|video)(?:\/|$)/i.test(pathname) || pageExt.test(pathname) || blockedPaths.test(pathname);
+};
 const trimHash = u => { const x = new URL(u); x.hash = ''; return x.toString(); };
 const local = u => new URL(u).origin === ROOT.origin;
 const issue = (type, url, detail) => ({ type, url, detail });
@@ -52,7 +57,7 @@ test('Site-wide crawl: pages, links, images, JavaScript errors', async ({ page, 
   const add = input => {
     try {
       const u = trimHash(new URL(input, ROOT).toString());
-      if (!local(u) || !/^https?:/.test(u) || pageExt.test(u) || blockedPaths.test(new URL(u).pathname)) return;
+      if (!local(u) || !/^https?:/.test(u) || isExcluded(u)) return;
       if (!queued.has(u) && queued.size < MAX_PAGES * 5) { queued.add(u); queue.push(u); }
     } catch {}
   };
@@ -60,7 +65,7 @@ test('Site-wide crawl: pages, links, images, JavaScript errors', async ({ page, 
   await discoverSitemap(request, add);
   while (queue.length && visited.size < MAX_PAGES) {
     const url = queue.shift();
-    if (visited.has(url)) continue;
+    if (isExcluded(url) || visited.has(url)) continue;
     visited.add(url);
     const jsErrors = [];
     const onError = err => jsErrors.push(err.message);
@@ -89,7 +94,7 @@ test('Site-wide crawl: pages, links, images, JavaScript errors', async ({ page, 
       for (const link of data.links) {
         try {
           const l = trimHash(link);
-          if (!local(l) || !/^https?:/.test(l) || blockedPaths.test(new URL(l).pathname)) continue;
+          if (!local(l) || !/^https?:/.test(l) || isExcluded(l)) continue;
           targetLinks.add(l);
           add(l);
         } catch {}
@@ -102,7 +107,7 @@ test('Site-wide crawl: pages, links, images, JavaScript errors', async ({ page, 
     } finally { page.off('pageerror', onError); }
   }
   const linkResults = [];
-  for (const url of [...targetLinks].slice(0, MAX_LINKS)) {
+  for (const url of [...targetLinks].filter(u => !isExcluded(u)).slice(0, MAX_LINKS)) {
     try {
       // GET is more reliable than HEAD for many WP/CDN routes.
       const res = await request.get(url, { timeout: 15000, maxRedirects: 5 });
