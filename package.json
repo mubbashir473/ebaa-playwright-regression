@@ -1,0 +1,13 @@
+{
+  "name": "ebaa-playwright-regression",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:safe": "playwright test --grep-invert @staging",
+    "test:staging": "playwright test",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen https://ebaa.com"
+  },
+  "devDependencies": { "@playwright/test": "^1.58.0", "dotenv": "^16.4.5" }
+}
