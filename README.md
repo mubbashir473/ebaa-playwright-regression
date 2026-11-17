@@ -1,9 +1,9 @@
-> Sanitized archive export: dev/staging examples are non-operational placeholders. MIT licensing and owner-confirmed attribution are current publication overlays; original development dates remain unverified. See [export notes](PUBLIC-EXPORT.md) and [license](LICENSE). Historical commands/results below are not current verification.
+> Current run guidance for the published `archive-exclusions` snapshot (package version 1.0.0). Source milestones remain documented in [export notes](PUBLIC-EXPORT.md); the project is [MIT licensed](LICENSE). Example origins below are deliberately nonresolving placeholders, not working environments. No current website pass is claimed.
 
 # EBAA Playwright Regression Suite (starter)
 
 ## Install
-Node.js 20+ recommended.
+Node.js 20+ recommended. This snapshot has no committed lockfile, so an installation does not reproduce an exact historical dependency graph. Run setup in an isolated local checkout and keep any real environment settings private.
 
 ```bash
 npm install
@@ -11,18 +11,45 @@ npx playwright install chromium webkit
 cp .env.example .env
 ```
 
-Edit `.env` to point BASE_URL to your authorized staging site or production.
+The example `.env` defaults to production. Select a target explicitly for each website run; do not rely on an old shell setting or a remembered environment name.
 
-## Run
+## Run on authorized staging or development
+
+Replace the placeholder below **privately** with the exact origin you are authorized to test. Do not commit internal hostnames, credentials or real `.env` files. Running the unchanged `example.invalid` URL will fail by design.
 
 ```bash
-npm run test:safe
+BASE_URL=https://staging.example.invalid ALLOW_SUBMISSIONS=false npm run test:safe
+```
+
+For a separately authorized development origin:
+
+```bash
+BASE_URL=https://development.example.invalid ALLOW_SUBMISSIONS=false npm run test:safe
+```
+
+**Version-specific target selection:** this v1.0.0 snapshot reads `BASE_URL`; it does not implement `EBAA_ENV`. Setting only `EBAA_ENV=staging` does not switch the target and can leave the default `https://ebaa.com` selected. Other snapshots can have different environment controls and scripts; check their own configuration rather than transferring commands between versions.
+
+`test:safe` excludes `@staging` cases. Desktop runs the core specs; mobile runs responsive specs only. The submission template remains unimplemented and unconditionally skipped. Neither the `@staging` label nor `ALLOW_SUBMISSIONS=false` is a universal network-write guard in this older snapshot. No successful business submission, delivery or server-validation coverage is claimed. Do not enable submissions, bypass CAPTCHA or use `test:staging` as permission to write.
+
+For test discovery without contacting the target, after dependencies are installed:
+
+```bash
+BASE_URL=https://staging.example.invalid ALLOW_SUBMISSIONS=false npm run test:safe -- --list
+```
+
+Discovery lists cases; it does not execute their assertions or prove a website pass.
+
+## View and retain local reports
+
+After an actual run:
+
+```bash
 npm run report
 ```
 
-`test:safe` excludes @staging submission tests. Desktop runs all site-wide checks. Mobile only runs responsive tests. To inspect the machine-readable site inventory, open `test-results/site-audit.json`.
+Report viewing opens an existing local report. `test-results/site-audit.json` contains the machine-readable inventory. Copy results to a private, dated location before another run can overwrite them. Record the command, exact target privately, snapshot/commit, browser projects, Node/Playwright versions, bounds, first failures, retries and skipped cases. Keep raw traces, screenshots, video, cookies and captured request data private; share only reviewed/redacted findings. See [SECURITY.md](SECURITY.md) for private reporting.
 
-For staging, configure the correct staging domain and forms (plus CAPTCHA test configuration) and run `npm run test:staging`. The included submission test is deliberately skipped until you implement site-specific, approved assertions.
+The default example production origin is not evidence that a production run is authorized. This runbook adds no write workflow or new environment guard and does not change historical test behavior.
 
 ## What this suite measures
 - Bounded internal HTML page discovery from WP sitemaps + hyperlink crawling.
